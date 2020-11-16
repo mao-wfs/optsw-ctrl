@@ -147,8 +147,7 @@ class CustomSocket(socket):
 
         host, port = self.getpeername()
         logger.info(f"{host}, {port}, {string}")
-
-        return received
+        return string
 
 
 def connect(host: str, port: int, timeout: Optional[float] = TIMEOUT) -> CustomSocket:
