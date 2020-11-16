@@ -6,9 +6,9 @@ __all__ = [
 
 
 # standard library
+from logging import getLogger
 from socket import socket, AF_INET, SOCK_STREAM
 from typing import Optional, Sequence, Union
-from logging import getLogger
 from pathlib import Path
 
 
