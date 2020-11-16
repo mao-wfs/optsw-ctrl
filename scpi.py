@@ -131,7 +131,6 @@ class CustomSocket(socket):
 
         host, port = self.getpeername()
         logger.info(f"{host}, {port}, {string}")
-
         return n_bytes
 
     def recv(
@@ -170,7 +169,7 @@ def connect(host: str, port: int, timeout: Optional[float] = TIMEOUT) -> CustomS
         To receive a message from a server::
 
             with connect('192.168.1.3', 5000) as sock:
-                sock.send("SYST:ERR?")
+                sock.send('SYST:ERR?')
                 print(sock.recv())
 
     """
