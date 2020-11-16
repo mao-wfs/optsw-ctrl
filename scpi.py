@@ -70,7 +70,7 @@ def send_commands(
         for command in commands:
             sock.send(command, encoding=encoding)
 
-            if autorecv and commands.endswith("?"):
+            if autorecv and command.endswith("?"):
                 sock.recv(bufsize)
 
 
