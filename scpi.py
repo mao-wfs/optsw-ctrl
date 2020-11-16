@@ -18,7 +18,7 @@ BUFSIZE: int = 4096
 ENCODING: str = "ascii"
 END: str = "\n"
 FLAGS: int = 0
-TIMEOUT: float = None
+TIMEOUT: Optional[float] = None
 
 
 # module logger
