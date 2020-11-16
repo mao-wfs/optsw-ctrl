@@ -119,15 +119,15 @@ class CustomSocket(socket):
 
     def send(
         self,
-        command: str,
+        string: str,
         flags: int = FLAGS,
         encoding: str = ENCODING,
     ) -> int:
         """Same as socket.send(), but accepts string, not bytes."""
-        n_bytes = super().send(command.encode(encoding), flags)
+        n_bytes = super().send(string.encode(encoding), flags)
 
         host, port = self.getpeername()
-        logger.info(f"{host}, {port}, {command}")
+        logger.info(f"{host}, {port}, {string}")
 
         return n_bytes
 
