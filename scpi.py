@@ -16,6 +16,7 @@ from pathlib import Path
 AUTORECV: bool = True
 BUFSIZE: int = 4096
 ENCODING: str = "ascii"
+END: str = "\n"
 FLAGS: int = 0
 TIMEOUT: float = None
 
@@ -121,10 +122,12 @@ class CustomSocket(socket):
         self,
         string: str,
         flags: int = FLAGS,
+        end: str = END,
         encoding: str = ENCODING,
     ) -> int:
         """Same as socket.send(), but accepts string, not bytes."""
-        n_bytes = super().send(string.encode(encoding), flags)
+        encoded = (string + end).encode(encoding)
+        n_bytes = super().send(encoded, flags)
 
         host, port = self.getpeername()
         logger.info(f"{host}, {port}, {string}")
@@ -135,13 +138,15 @@ class CustomSocket(socket):
         self,
         bufsize: int = BUFSIZE,
         flags: int = FLAGS,
+        end: str = END,
         encoding: str = ENCODING,
     ) -> str:
         """Same as socket.recv(), but returns string, not bytes."""
-        received = super().recv(bufsize, flags).decode(encoding)
+        received = super().recv(bufsize, flags)
+        string = received.decode(encoding).rstrip(end)
 
         host, port = self.getpeername()
-        logger.info(f"{host}, {port}, {received}")
+        logger.info(f"{host}, {port}, {string}")
 
         return received
 
