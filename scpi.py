@@ -69,6 +69,9 @@ def send_commands(
 
     with connect(host, port, timeout) as sock:
         for command in commands:
+            if not command or command.startswith("#"):
+                continue
+
             sock.send(command, encoding=encoding)
 
             if autorecv and command.endswith("?"):
