@@ -72,7 +72,7 @@ def send_commands(
             if not command or command.startswith("#"):
                 continue
 
-            sock.send(command, encoding=encoding)
+            sock.send(command.strip(), encoding=encoding)
 
             if autorecv and command.endswith("?"):
                 sock.recv(bufsize)
@@ -133,7 +133,7 @@ class CustomSocket(socket):
         n_bytes = super().send(encoded, flags)
 
         host, port = self.getpeername()
-        logger.info(f"{host}, {port}, {string}")
+        logger.info(f"{host}:{port} <- {string}")
         return n_bytes
 
     def recv(
@@ -148,7 +148,7 @@ class CustomSocket(socket):
         string = received.decode(encoding).rstrip(end)
 
         host, port = self.getpeername()
-        logger.info(f"{host}, {port}, {string}")
+        logger.info(f"{host}:{port} -> {string}")
         return string
 
 
