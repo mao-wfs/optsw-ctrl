@@ -1,0 +1,54 @@
+#!/usr/bin/env python
+
+
+# standard library
+from typing import Dict, Sequence
+from pathlib import Path
+
+
+# constants
+N_PATTERNS: str = 100000
+PORT_TO_PATTERN: Dict[str, str] = {
+    "E": "0",
+    "F": "20480",
+    "G": "4096",
+    "H": "8192",
+}
+
+
+# helper function
+def make_pattern(optsw_port_1: str, optsw_port_2: str) -> Sequence["str"]:
+    pattern_1 = PORT_TO_PATTERN[optsw_port_1]
+    pattern_2 = PORT_TO_PATTERN[optsw_port_2]
+
+    return [pattern_1] * 1 + [pattern_2] * (N_PATTERNS - 1)
+
+
+def get_pattern_freq(switch_freq: float) -> float:
+    return 2 * N_PATTERNS * switch_freq
+
+
+# main part
+if __name__ == "__main__":
+    # pattern setup
+    switch_freq = 0.5
+    optsw_port_1 = "G"
+    optsw_port_2 = "E"
+
+    # make commands
+    pattern = make_pattern(optsw_port_1, optsw_port_2)
+    pattern_freq = get_pattern_freq(switch_freq)
+    filename = f"3390_{switch_freq:.1f}Hz_switch_{optsw_port_1}{optsw_port_2}.txt"
+
+    commands = f"""
+    FUNC:PATT VOLATILE
+    DIG:PATT:FREQ {pattern_freq:.2e}
+    DIG:PATT:STAR 1
+    DIG:PATT:STOP {len(pattern)}
+    DIG:PATT:REP ON
+    DIG:PATT:CLOC POS
+    DATA:PATT VOLATILE, {','.join(pattern)}
+    """
+
+    with open(Path("preset") / filename, "w") as f:
+        f.write(commands.strip())
