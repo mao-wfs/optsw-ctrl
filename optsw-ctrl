@@ -1,0 +1,65 @@
+#!/usr/bin/env python
+
+
+# standard library
+import time
+from logging import basicConfig, INFO
+from logging import FileHandler, StreamHandler
+from os import environ as env
+from pathlib import Path
+
+
+# dependencies
+from scpi import send_commands, send_commands_in
+
+
+# constants
+preset = Path() / "preset"
+logname = "optsw-ctrl.log"
+
+
+# logging
+basicConfig(
+    level=INFO,
+    format="%(asctime)s %(levelname)s %(message)s",
+    handlers=(StreamHandler(), FileHandler(logname)),
+)
+
+
+# main script
+def main():
+    # get FG and PG addresses
+    fg_addr = env["FG_HOST"], int(env["FG_PORT"])
+    pg_addr = env["PG_HOST"], int(env["PG_PORT"])
+
+    # FG setup before main loop
+    send_commands_in(preset / "33500B_initialization.txt", *fg_addr)
+    send_commands_in(preset / "33500B_1pps_signal.txt", *fg_addr)
+    send_commands_in(preset / "33500B_output_for_1Hz_switch.txt", *fg_addr)
+    send_commands_in(preset / "33500B_trigger_for_1Hz_switch.txt", *fg_addr)
+
+    # PG setup before main loop
+    send_commands_in(preset / "3390_initialization.txt", *pg_addr)
+    send_commands_in(preset / "3390_output_for_1Hz_switch_GE.txt", *pg_addr)
+    send_commands_in(preset / "3390_trigger.txt", *pg_addr)
+
+    # main loop
+    try:
+        input("Type any key to start control: ")
+        send_commands(["OUTP1 ON", "OUTP2 ON", "INIT1:CONT ON"], *fg_addr)
+        send_commands(["OUTP ON", "OUTP:TRIG ON"], *pg_addr)
+
+        while True:
+            send_commands("SYST:ERR?", *fg_addr)
+            send_commands("SYST:ERR?", *pg_addr)
+            time.sleep(10.0)
+    except (EOFError, KeyboardInterrupt):
+        print("Control was interrupted by user")
+    finally:
+        send_commands_in(preset / "33500B_initialization.txt", *fg_addr)
+        send_commands_in(preset / "3390_initialization.txt", *pg_addr)
+
+
+# run main script
+if __name__ == "__main__":
+    main()
