@@ -31,14 +31,14 @@ def get_pattern_freq(switch_freq: float) -> float:
 # main part
 if __name__ == "__main__":
     # pattern setup
-    switch_freq = 0.5
+    switch_freq = 1
     optsw_port_1 = "G"
     optsw_port_2 = "E"
 
     # make commands
     pattern = make_pattern(optsw_port_1, optsw_port_2)
     pattern_freq = get_pattern_freq(switch_freq)
-    filename = f"3390_{switch_freq:.1f}Hz_switch_{optsw_port_1}{optsw_port_2}.txt"
+    filename = f"3390_{switch_freq}Hz_switch_{optsw_port_1}{optsw_port_2}.txt"
 
     commands = f"""
     FUNC:PATT VOLATILE
