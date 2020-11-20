@@ -48,6 +48,7 @@ def main():
     try:
         input("Type any key to start control: ")
         send_commands(["OUTP1 ON", "OUTP2 ON", "INIT1:CONT ON"], *fg_addr)
+        time.sleep(1.0)
         send_commands(["OUTP ON", "OUTP:TRIG ON"], *pg_addr)
 
         while True:
