@@ -18,7 +18,7 @@ BUFSIZE: int = 4096
 ENCODING: str = "ascii"
 END: str = "\n"
 FLAGS: int = 0
-LOGWIDTH: int = 1024
+LOGWIDTH: int = 100
 TIMEOUT: Optional[float] = None
 
 
