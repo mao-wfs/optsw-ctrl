@@ -2,6 +2,7 @@
 
 
 # standard library
+import sys
 from typing import Dict, Sequence
 from pathlib import Path
 
@@ -30,10 +31,17 @@ def get_pattern_freq(switch_freq: float) -> float:
 
 # main part
 if __name__ == "__main__":
+    """Script to make a preset commands for the Model 3390.
+
+    Usage:
+        $ script/pgpreset 1 E F # switch between E and F at 1 Hz
+        $ script/pgpreset 1 E E # no switching
+
+    """
     # pattern setup
-    switch_freq = 1
-    optsw_port_1 = "G"
-    optsw_port_2 = "E"
+    switch_freq = int(sys.argv[1])
+    optsw_port_1 = sys.argv[2]
+    optsw_port_2 = sys.argv[3]
 
     # make commands
     pattern = make_pattern(optsw_port_1, optsw_port_2)
@@ -47,7 +55,7 @@ if __name__ == "__main__":
     DIG:PATT:STOP {len(pattern)}
     DIG:PATT:REP ON
     DIG:PATT:CLOC POS
-    DATA:PATT VOLATILE, {','.join(pattern)}
+    DATA:PATT VOLATILE,{','.join(pattern)}
     """
 
     with open(Path("preset") / filename, "w") as f:
