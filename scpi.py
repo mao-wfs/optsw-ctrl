@@ -8,6 +8,7 @@ __all__ = [
 # standard library
 from logging import getLogger
 from socket import socket, AF_INET, SOCK_STREAM
+from textwrap import shorten
 from typing import Optional, Sequence, Union
 from pathlib import Path
 
@@ -18,6 +19,7 @@ BUFSIZE: int = 4096
 ENCODING: str = "ascii"
 END: str = "\n"
 FLAGS: int = 0
+LOGWIDTH: int = 1024
 TIMEOUT: Optional[float] = None
 
 
@@ -133,7 +135,7 @@ class CustomSocket(socket):
         n_bytes = super().send(encoded, flags)
 
         host, port = self.getpeername()
-        logger.info(f"{host}:{port} <- {string}")
+        logger.info(f"{host}:{port} <- {shorten(string, LOGWIDTH)}")
         return n_bytes
 
     def recv(
@@ -148,7 +150,7 @@ class CustomSocket(socket):
         string = received.decode(encoding).rstrip(end)
 
         host, port = self.getpeername()
-        logger.info(f"{host}:{port} -> {string}")
+        logger.info(f"{host}:{port} -> {shorten(string, LOGWIDTH)}")
         return string
 
     def close(self):
