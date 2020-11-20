@@ -7,7 +7,7 @@ __all__ = [
 
 # standard library
 from logging import getLogger
-from socket import socket, AF_INET, SOCK_STREAM
+from socket import socket, AF_INET, SHUT_RDWR, SOCK_STREAM
 from textwrap import shorten
 from typing import Optional, Sequence, Union
 from pathlib import Path
@@ -155,7 +155,7 @@ class CustomSocket(socket):
 
     def close(self):
         """Same as socket.close(), but ensures shutdown."""
-        self.shutdown()
+        self.shutdown(SHUT_RDWR)
         super().close()
 
 
