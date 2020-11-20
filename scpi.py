@@ -7,18 +7,19 @@ __all__ = [
 
 # standard library
 from logging import getLogger
-from socket import socket, AF_INET, SHUT_RDWR, SOCK_STREAM
-from typing import Optional, Sequence, Union
+from socket import socket, AF_INET, SOCK_STREAM
 from pathlib import Path
 
 
 # constants
-AUTORECV: bool = True
+AUTO_RECV: bool = True
 BUFSIZE: int = 4096
 ENCODING: str = "ascii"
-END: str = "\n"
-FLAGS: int = 0
-LOGWIDTH: int = 100
+END_SEND: str = "\n"
+END_RECV: str = "\n"
+KWD_COMMENT: str = "#"
+KWD_QUERY: str = "?"
+LOG_WIDTH: int = 100
 TIMEOUT: Optional[float] = None
 
 
@@ -122,40 +123,35 @@ def send_commands_in(
 class CustomSocket(socket):
     """Custom socket class to send/recv string with logging."""
 
-    def send(
-        self,
-        string: str,
-        flags: int = FLAGS,
-        end: str = END,
-        encoding: str = ENCODING,
-    ) -> int:
+    def send(self, string: str) -> int:
         """Same as socket.send(), but accepts string, not bytes."""
-        encoded = (string + end).encode(encoding)
-        n_bytes = super().send(encoded, flags)
+        n_bytes = super().send((string + END_SEND).encode(ENCODING))
 
         host, port = self.getpeername()
-        logger.info(f"{host}:{port} <- {shorten(string, LOGWIDTH)}")
+        logger.info(f"{host}:{port} <- {shorten(string, LOG_WIDTH)}")
         return n_bytes
 
-    def recv(
-        self,
-        bufsize: int = BUFSIZE,
-        flags: int = FLAGS,
-        end: str = END,
-        encoding: str = ENCODING,
-    ) -> str:
+    def recv(self) -> str:
         """Same as socket.recv(), but returns string, not bytes."""
-        received = super().recv(bufsize, flags)
-        string = received.decode(encoding).rstrip(end)
+        string = super().recv(BUFSIZE).decode(ENCODING).rstrip(END_RECV)
 
         host, port = self.getpeername()
-        logger.info(f"{host}:{port} -> {shorten(string, LOGWIDTH)}")
+        logger.info(f"{host}:{port} -> {shorten(string, LOG_WIDTH)}")
         return string
 
-    def close(self):
-        """Same as socket.close(), but ensures shutdown."""
-        self.shutdown(SHUT_RDWR)
-        super().close()
+    def send_from(self, path: Path, auto_recv: bool = AUTO_RECV) -> None:
+        """Send line(s) written in a file and receive data if exists."""
+        with open(path) as f:
+            for line in f:
+                line = line.strip()
+
+                if not line or line.startswith(KWD_COMMENT):
+                    continue
+
+                self.write(line)
+
+                if auto_recv and line.endswith(KWD_QUERY):
+                    self.recv()
 
 
 def connect(host: str, port: int, timeout: Optional[float] = TIMEOUT) -> CustomSocket:
@@ -189,6 +185,7 @@ def connect(host: str, port: int, timeout: Optional[float] = TIMEOUT) -> CustomS
     return sock
 
 
+# helper features
 def shorten(string: str, width: int, placeholder: str = "...") -> str:
     """Same as textwrap.shorten(), but compatible with string without whitespaces."""
     return string[:width] + (placeholder if string[width:] else "")
