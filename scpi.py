@@ -8,7 +8,6 @@ __all__ = [
 # standard library
 from logging import getLogger
 from socket import socket, AF_INET, SHUT_RDWR, SOCK_STREAM
-from textwrap import shorten
 from typing import Optional, Sequence, Union
 from pathlib import Path
 
@@ -188,3 +187,8 @@ def connect(host: str, port: int, timeout: Optional[float] = TIMEOUT) -> CustomS
     sock.connect((host, port))
 
     return sock
+
+
+def shorten(string: str, width: int, placeholder: str = "...") -> str:
+    """Same as textwrap.shorten(), but compatible with string without whitespaces."""
+    return string[:width] + (placeholder if string[width:] else "")
