@@ -151,6 +151,11 @@ class CustomSocket(socket):
         logger.info(f"{host}:{port} -> {string}")
         return string
 
+    def close(self):
+        """Same as socket.close(), but ensures shutdown."""
+        self.shutdown()
+        super().close()
+
 
 def connect(host: str, port: int, timeout: Optional[float] = TIMEOUT) -> CustomSocket:
     """Connect to an SCPI server and returns a custom socket object.
