@@ -62,7 +62,7 @@ class CustomSocket(socket):
                 if not line or line.startswith(KWD_COMMENT):
                     continue
 
-                self.write(line)
+                self.send(line)
 
                 if auto_recv and line.endswith(KWD_QUERY):
                     self.recv()
