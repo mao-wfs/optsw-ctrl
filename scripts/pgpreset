@@ -4,8 +4,8 @@
 """Script to make a preset commands for the Model 3390.
 
 Usage:
-    $ script/pgpreset 1 E F # switch between E and F at 1 Hz
-    $ script/pgpreset 1 E E # no switching
+    $ scripts/pgpreset 1 E F # switch between E and F at 1 Hz
+    $ scripts/pgpreset 1 E E # no switching
 
 """
 
