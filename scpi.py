@@ -4,7 +4,10 @@ __all__ = [
 
 
 # standard library
-from logging import getLogger
+import os
+import sys
+from logging import basicConfig, INFO, getLogger
+from logging import FileHandler, StreamHandler
 from socket import socket, AF_INET, SOCK_STREAM
 from typing import Optional, Union
 from pathlib import Path
@@ -100,3 +103,44 @@ def connect(host: str, port: int, timeout: Optional[float] = TIMEOUT) -> CustomS
 def shorten(string: str, width: int, placeholder: str = "...") -> str:
     """Same as textwrap.shorten(), but compatible with string without whitespaces."""
     return string[:width] + (placeholder if string[width:] else "")
+
+
+# main script
+if __name__ == "__main__":
+    """Mini tool to send command or line(s) written in a file.
+
+    Usage:
+        $ export FG_HOST=<host name>
+        $ export FG_PORT=<port number>
+        $ export PG_HOST=<host name>
+        $ export PG_PORT=<port number>
+        $ poetry run python scpi.py [FG|PG] <file path or command>
+
+    """
+    basicConfig(
+        level=INFO,
+        format="%(asctime)s %(levelname)s %(message)s",
+        handlers=(StreamHandler(), FileHandler("scpi.log")),
+    )
+
+    device = sys.argv[1]
+    path_or_cmd = sys.argv[2]
+
+    if device.upper() == "FG":
+        host = os.environ["FG_HOST"]
+        port = os.environ["FG_PORT"]
+    elif device.upper() == "PG":
+        host = os.environ["PG_HOST"]
+        port = os.environ["PG_PORT"]
+    else:
+        raise ValueError("Device must be either FG or PG.")
+
+    if Path(path_or_cmd).exists():
+        with connect(host, port) as sock:
+            sock.send_from(path_or_cmd)
+    else:
+        with connect(host, port) as sock:
+            sock.send(path_or_cmd)
+
+            if path_or_cmd.endswith(KWD_QUERY):
+                sock.recv()
