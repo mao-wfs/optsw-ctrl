@@ -128,10 +128,10 @@ if __name__ == "__main__":
 
     if device.upper() == "FG":
         host = os.environ["FG_HOST"]
-        port = os.environ["FG_PORT"]
+        port = int(os.environ["FG_PORT"])
     elif device.upper() == "PG":
         host = os.environ["PG_HOST"]
-        port = os.environ["PG_PORT"]
+        port = int(os.environ["PG_PORT"])
     else:
         raise ValueError("Device must be either FG or PG.")
 
