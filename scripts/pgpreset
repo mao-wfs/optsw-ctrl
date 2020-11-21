@@ -1,6 +1,15 @@
 #!/usr/bin/env python
 
 
+"""Script to make a preset commands for the Model 3390.
+
+Usage:
+    $ script/pgpreset 1 E F # switch between E and F at 1 Hz
+    $ script/pgpreset 1 E E # no switching
+
+"""
+
+
 # standard library
 import sys
 from typing import Dict, Sequence
@@ -26,37 +35,28 @@ def make_pattern(optsw_port_1: str, optsw_port_2: str) -> Sequence["str"]:
 
 
 def get_pattern_freq(switch_freq: float) -> float:
-    return 2 * N_PATTERNS * switch_freq
+    return N_PATTERNS * switch_freq
 
 
-# main part
-if __name__ == "__main__":
-    """Script to make a preset commands for the Model 3390.
+# pattern setup
+switch_freq = int(sys.argv[1])
+optsw_port_1 = sys.argv[2]
+optsw_port_2 = sys.argv[3]
 
-    Usage:
-        $ script/pgpreset 1 E F # switch between E and F at 1 Hz
-        $ script/pgpreset 1 E E # no switching
+# make commands
+pattern = make_pattern(optsw_port_1, optsw_port_2)
+pattern_freq = get_pattern_freq(switch_freq)
+filename = f"3390_{switch_freq}Hz_switch_{optsw_port_1}{optsw_port_2}.txt"
 
-    """
-    # pattern setup
-    switch_freq = int(sys.argv[1])
-    optsw_port_1 = sys.argv[2]
-    optsw_port_2 = sys.argv[3]
+commands = f"""
+FUNC:PATT VOLATILE
+DIG:PATT:FREQ {pattern_freq:.2e}
+DIG:PATT:STAR 1
+DIG:PATT:STOP {len(pattern)}
+DIG:PATT:REP ON
+DIG:PATT:CLOC POS
+DATA:PATT VOLATILE,{','.join(pattern)}
+"""
 
-    # make commands
-    pattern = make_pattern(optsw_port_1, optsw_port_2)
-    pattern_freq = get_pattern_freq(switch_freq)
-    filename = f"3390_{switch_freq}Hz_switch_{optsw_port_1}{optsw_port_2}.txt"
-
-    commands = f"""
-    FUNC:PATT VOLATILE
-    DIG:PATT:FREQ {pattern_freq:.2e}
-    DIG:PATT:STAR 1
-    DIG:PATT:STOP {len(pattern)}
-    DIG:PATT:REP ON
-    DIG:PATT:CLOC POS
-    DATA:PATT VOLATILE,{','.join(pattern)}
-    """
-
-    with open(Path("preset") / filename, "w") as f:
-        f.write(commands.strip())
+with open(Path("preset") / filename, "w") as f:
+    f.write(commands.strip())
