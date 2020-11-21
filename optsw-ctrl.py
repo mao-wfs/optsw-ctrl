@@ -12,14 +12,17 @@ from scpi import connect
 
 # constants
 preset = Path() / "preset"
-logname = "optsw-ctrl.log"
 
 
 # logging
 basicConfig(
     level=INFO,
     format="%(asctime)s %(levelname)s %(message)s",
-    handlers=(StreamHandler(), FileHandler(logname)),
+    handlers=(
+        StreamHandler(),
+        FileHandler("scpi.log"),
+        FileHandler("optsw-ctrl.log"),
+    ),
 )
 
 
