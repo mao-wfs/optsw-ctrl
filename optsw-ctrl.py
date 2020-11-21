@@ -1,6 +1,3 @@
-#!/usr/bin/env python
-
-
 # standard library
 import time
 from logging import basicConfig, INFO
